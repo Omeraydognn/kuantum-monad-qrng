@@ -1,12 +1,32 @@
 {
   "name": "kuantum-qrng-sdk",
-  "version": "1.0.1",
-  "description": "TypeScript SDK for Monad QRNG Oracle",
+  "version": "1.0.2",
+  "description": "Official TypeScript SDK for the Monad Quantum Randomness Oracle (QRNG)",
   "main": "dist/QuantumOracleSDK.js",
   "types": "dist/QuantumOracleSDK.d.ts",
   "scripts": {
     "build": "tsc"
   },
+  "keywords": [
+    "monad",
+    "qrng",
+    "oracle",
+    "quantum",
+    "randomness",
+    "web3",
+    "solidity",
+    "ecdsa"
+  ],
+  "author": "Omer Aydogan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Omeraydognn/kuantum-monad-qrng.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Omeraydognn/kuantum-monad-qrng/issues"
+  },
+  "homepage": "https://github.com/Omeraydognn/kuantum-monad-qrng#readme",
   "dependencies": {
     "axios": "^1.7.2",
     "ethers": "^6.13.1"
