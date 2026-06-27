@@ -8,6 +8,12 @@ This repository implements the entire end-to-end infrastructure, including the s
 
 ---
 
+## 🔗 Live Portal & Demo
+*   **Interactive Web App:** [https://kuantum-sigma.vercel.app](https://kuantum-sigma.vercel.app)
+*   **Published NPM SDK:** [`kuantum-qrng-sdk` (v1.0.1)](https://www.npmjs.com/package/kuantum-qrng-sdk)
+
+---
+
 ## Repository Structure
 
 *   **`contract/`**: Solidity smart contracts (`QuantumOracle.sol`), deployment scripts, and mocha unit test suites.
@@ -23,6 +29,25 @@ This repository implements the entire end-to-end infrastructure, including the s
 2.  **Relay & Sign**: The Relayer server fetches the random number, hashes it, signs the hash using its private key, and exposes the payload.
 3.  **SDK Fetch**: The client dApp pulls the signed payload via the TypeScript SDK.
 4.  **Verification**: The client submits the payload to the Monad smart contract, which verifies the Relayer's signature using on-chain `ecrecover`. If valid, the entropy is registered.
+
+---
+
+## 🔮 Roadmap: The Trustless Future (zkTLS Integration)
+
+This project is built as a long-term cryptographic primitive for the Monad ecosystem, designed to evolve beyond the current MVP phase into a production-grade decentralized infrastructure.
+
+### The Problem in MVP
+Currently, the system relies on a trusted **Relayer Node** to fetch the quantum entropy and sign it. Users must trust that the Relayer is honest and does not manipulate the random number before signing.
+
+### Mainnet Vision: zkTLS (TLSNotary / zkPass)
+In our upcoming production release on the Monad Mainnet, we are removing the need to trust our Relayer by integrating **zkTLS** technology:
+
+*   **Zero-Knowledge Proofs for Web Data**: When the Relayer queries the official ANU Quantum Laboratory API over HTTPS, it will run a zkTLS handshake (utilizing protocols like **TLSNotary** or **zkPass**).
+*   **Cryptographic Attestation**: The Relayer will generate a Zero-Knowledge Proof (ZK Proof) proving:
+    > *"I did not fake this number. I retrieved it directly from the official HTTPS endpoint (qrng.anu.edu.au) and it was not altered in transit."*
+*   **100% Trustless Verification**: The Monad smart contract will verify the ZK Proof containing the laboratory's SSL/TLS signature directly on-chain.
+
+By validating the web session's cryptographic proof, the oracle becomes completely **trustless and decentralized**, eliminating the Relayer as a single point of failure.
 
 ---
 
