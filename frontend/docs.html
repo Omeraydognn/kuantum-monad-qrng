@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monad QRNG — Developer Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,500;1,8..60,600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET ── */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter Tight', sans-serif;
+      background: #060606;
+      color: #e5e5e5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── TOKENS ── */
+    :root {
+      --canvas: #060606;
+      --card: #161616;
+      --surface: #252525;
+      --accent: #c5ff4a;
+      --chalk: #ffffff;
+      --bone: #e5e5e5;
+      --ash: #7a7a7a;
+      --code-bg: #0a0a0a;
+      --nav-bg: #000000;
+      --font-display: 'Source Serif 4', 'PT Serif', serif;
+      --font-ui: 'Inter Tight', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-btn: 4px;
+      --radius-card: 0px;
+      --border: 1px solid var(--surface);
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 64px;
+      background: var(--nav-bg);
+      border-bottom: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+    }
+
+    .navbar-logo {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: 20px;
+      color: var(--chalk);
+      letter-spacing: -0.5px;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .navbar-logo .logo-accent {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .navbar-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .navbar-links a {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--ash);
+      transition: color 0.2s ease;
+    }
+
+    .navbar-links a:hover {
+      color: var(--bone);
+    }
+
+    .navbar-links a.active {
+      color: var(--accent);
+    }
+
+    .navbar-links a.disabled {
+      color: var(--ash);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .page-wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 48px 40px 96px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 48px;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 96px;
+      align-self: start;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .sidebar-link {
+      display: block;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--ash);
+      text-decoration: none;
+      padding: 10px 16px;
+      border-left: 2px solid transparent;
+      transition: color 0.2s ease, border-color 0.2s ease;
+      line-height: 1.4;
+    }
+
+    .sidebar-link:hover {
+      color: var(--accent);
+    }
+
+    .sidebar-link.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+
+    /* ── CONTENT ── */
+    .content-area {
+      min-width: 0;
+    }
+
+    .doc-section {
+      border-bottom: var(--border);
+      padding-bottom: 48px;
+      margin-bottom: 48px;
+    }
+
+    .doc-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .section-eyebrow {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ash);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 300;
+      font-size: 32px;
+      color: var(--chalk);
+      letter-spacing: -0.5px;
+      margin-bottom: 24px;
+      line-height: 1.2;
+    }
+
+    .section-paragraph {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: var(--bone);
+      line-height: 1.55;
+      max-width: 100%;
+      margin-bottom: 24px;
+    }
+
+    .section-subheading {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--chalk);
+      margin-bottom: 8px;
+      margin-top: 32px;
+    }
+
+    .section-subheading:first-child {
+      margin-top: 0;
+    }
+
+    /* ── BULLET LIST ── */
+    .bullet-list {
+      list-style: none;
+      margin-bottom: 24px;
+      padding-left: 0;
+    }
+
+    .bullet-list li {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: var(--bone);
+      line-height: 1.55;
+      padding: 4px 0 4px 20px;
+      position: relative;
+    }
+
+    .bullet-list li::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 12px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* ── CODE BLOCKS ── */
+    .code-container {
+      position: relative;
+      margin-bottom: 24px;
+      border-radius: var(--radius-card);
+    }
+
+    .code-container pre {
+      background: var(--code-bg);
+      border: var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    .code-container pre code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--bone);
+      background: none;
+      padding: 0;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #000;
+      border: 1px solid var(--surface);
+      color: var(--ash);
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease;
+      z-index: 2;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── SYNTAX HIGHLIGHTING ── */
+    .token-keyword {
+      color: var(--accent);
+    }
+
+    .token-string {
+      color: var(--bone);
+    }
+
+    .token-comment {
+      color: var(--ash);
+      font-style: italic;
+    }
+
+    .token-function {
+      color: var(--chalk);
+    }
+
+    .token-type {
+      color: #c5c5c5;
+    }
+
+    .token-operator {
+      color: var(--accent);
+    }
+
+    .token-number {
+      color: var(--accent);
+    }
+
+    /* ── CALLOUT BOX ── */
+    .callout {
+      background: var(--code-bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      margin-bottom: 24px;
+      align-items: flex-start;
+    }
+
+    .callout-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+    }
+
+    .callout-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .callout-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .callout-title {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--chalk);
+      margin-bottom: 8px;
+    }
+
+    .callout-text {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--bone);
+    }
+
+    /* ── INSTALL TABS ── */
+    .install-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 0;
+    }
+
+    .install-tab-btn {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ash);
+      background: var(--code-bg);
+      border: var(--border);
+      border-bottom: 2px solid transparent;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: color 0.2s ease, border-bottom-color 0.2s ease;
+    }
+
+    .install-tab-btn:first-child {
+      border-right: none;
+    }
+
+    .install-tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .install-tab-btn:hover {
+      color: var(--accent);
+    }
+
+    .install-code-block {
+      display: none;
+    }
+
+    .install-code-block.visible {
+      display: block;
+    }
+
+    .install-code-block .code-container {
+      margin-bottom: 0;
+    }
+
+    .install-code-block pre {
+      border-top: none;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    /* ── INLINE CODE ── */
+    code.inline {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--card);
+      border: var(--border);
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--canvas);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--surface);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--ash);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .page-wrapper {
+        grid-template-columns: 1fr;
+        padding: 32px 20px 64px;
+      }
+
+      .sidebar {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0;
+        border-bottom: var(--border);
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+      }
+
+      .sidebar-link {
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .sidebar-link.active {
+        border-left: none;
+        border-bottom-color: var(--accent);
+      }
+
+      .navbar {
+        padding: 0 20px;
+      }
+
+      .navbar-links {
+        gap: 16px;
+      }
+
+      .navbar-links a {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+      }
+
+      .section-title {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!--  NAVIGATION BAR                                  -->
+  <!-- ════════════════════════════════════════════════ -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-logo">MONAD <span class="logo-accent">QRNG</span></a>
+    <div class="navbar-links">
+      <a href="index.html">Protocol</a>
+      <a href="docs.html" class="active">Documentation</a>
+      <a href="#" class="disabled">Ecosystem</a>
+      <a href="#" class="disabled">Metrics</a>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!--  PAGE GRID: SIDEBAR + CONTENT                    -->
+  <!-- ════════════════════════════════════════════════ -->
+  <div class="page-wrapper">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+      <a href="#overview" class="sidebar-link active" data-section="overview">Genel Bakış</a>
+      <a href="#installation" class="sidebar-link" data-section="installation">Kurulum</a>
+      <a href="#quickstart" class="sidebar-link" data-section="quickstart">Hızlı Başlangıç</a>
+      <a href="#solidity" class="sidebar-link" data-section="solidity">Akıllı Kontrat Entegrasyonu</a>
+      <a href="#api" class="sidebar-link" data-section="api">API Referansı</a>
+      <a href="#errors" class="sidebar-link" data-section="errors">Hata Yönetimi</a>
+      <a href="#security" class="sidebar-link" data-section="security">Güvenlik &amp; ZK Vision</a>
+    </aside>
+
+    <!-- ── CONTENT ── -->
+    <main class="content-area">
+
+      <!-- ══════════════════════════════════════════ -->
+      <!--  SECTION 1: GENEL BAKIŞ                    -->
+      <!-- ══════════════════════════════════════════ -->
+      <section class="doc-section" id="overview">
+        <p class="section-eyebrow">[ SECTION 01 · OVERVIEW ]</p>
+        <h2 class="section-title">1. Genel Bakış</h2>
+        <p class="section-paragraph">Monad Quantum Oracle, Monad ağı üzerinde çalışan akıllı kontratlara gerçek fiziksel kuantum rastgeleliği (QRNG) sağlayan, pull-based mimariye sahip bir altyapı protokolüdür. Avustralya Ulusal Üniversitesi'nin (ANU) kuantum laboratuvarındaki vakum elektromanyetik alan dalgalanmaları ölçülerek elde edilen entropi, off-chain olarak ECDSA (secp256k1) algoritmasıyla imzalanır ve Monad ağına tek blokta doğrulanarak aktarılır.</p>
+
+        <div class="callout">
+          <div class="callout-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <div class="callout-body">
+            <div class="callout-title">Neden Kuantum Entropisi?</div>
+            <p class="callout-text">Sözde rastgele sayı üreteçleri (PRNG — block.timestamp, keccak256, prevRandao vb.) madenciler veya validatörler tarafından manipüle edilebilir. Bu durum, adil çekiliş, NFT mint sıralaması veya DeFi tasfiye mekanizmaları gibi kritik süreçlerde ciddi güvenlik açıkları doğurur. Kuantum QRNG ise evrenin temel fizik yasalarını kullanarak %100 tahmin edilemez ve manipüle edilemez bir entropi kaynağı sunar. Hiçbir bilgisayar, kuantum bilgisayar dahil, bu değerleri önceden hesaplayamaz.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!--  SECTION 2: KURULUM                         -->
+      <!-- ══════════════════════════════════════════ -->
+      <section class="doc-section" id="installation">
+        <p class="section-eyebrow">[ SECTION 02 · INSTALLATION ]</p>
+        <h2 class="section-title">2. Kurulum</h2>
+
+        <h3 class="section-subheading">Gereksinimler (Prerequisites)</h3>
+        <p class="section-paragraph">SDK'nın düzgün çalışabilmesi için aşağıdaki araçların sisteminizde kurulu olması gerekmektedir:</p>
+        <ul class="bullet-list">
+          <li>Node.js >= 18.0</li>
+          <li>Ethers.js v6</li>
+          <li>Bir Monad RPC endpoint (Testnet veya Mainnet)</li>
+        </ul>
+
+        <h3 class="section-subheading">Paket Kurulumu</h3>
+        <p class="section-paragraph">Tercih ettiğiniz paket yöneticisine göre aşağıdaki sekmelerden birini kullanarak SDK'yı projenize ekleyin:</p>
+
+        <div class="install-tabs">
+          <button class="install-tab-btn active" id="tab-npm" onclick="switchInstallTab('npm')">NPM</button>
+          <button class="install-tab-btn" id="tab-yarn" onclick="switchInstallTab('yarn')">YARN</button>
+        </div>
+
+        <div class="install-code-block visible" id="code-install-npm">
+          <div class="code-container">
+            <button class="copy-btn" onclick="copyCodeText(this)">KOPYALA</button>
+            <pre><code>npm install kuantum-qrng-sdk ethers axios</code></pre>
+          </div>
+        </div>
+
+        <div class="install-code-block" id="code-install-yarn">
+          <div class="code-container">
+            <button class="copy-btn" onclick="copyCodeText(this)">KOPYALA</button>
+            <pre><code>yarn add kuantum-qrng-sdk ethers axios</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!--  SECTION 3: HIZLI BAŞLANGIÇ                 -->
+      <!-- ══════════════════════════════════════════ -->
+      <section class="doc-section" id="quickstart">
+        <p class="section-eyebrow">[ SECTION 03 · QUICKSTART ]</p>
+        <h2 class="section-title">3. Hızlı Başlangıç</h2>
+        <p class="section-paragraph">SDK'yı projenize dahil edip bir Monad RPC sağlayıcısı ve işlem imzalayıcı cüzdan (Wallet) ile başlatmak oldukça basittir. Aşağıdaki örnek, SDK'nın tam yaşam döngüsünü — başlatma, entropi çekme ve on-chain doğrulama — göstermektedir:</p>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCodeText(this)">KOPYALA</button>
+          <pre><code><span class="token-keyword">import</span> { <span class="token-function">QuantumSDK</span> } <span class="token-keyword">from</span> <span class="token-string">"kuantum-qrng-sdk"</span>;
+<span class="token-keyword">import</span> { ethers } <span class="token-keyword">from</span> <span class="token-string">"ethers"</span>;
+
+<span class="token-comment">// ────────────────────────────────────────────────</span>
+<span class="token-comment">// 1. Monad RPC Sağlayıcısı ve İmzalayıcı Cüzdan</span>
+<span class="token-comment">// ────────────────────────────────────────────────</span>
+<span class="token-keyword">const</span> provider <span class="token-operator">=</span> <span class="token-keyword">new</span> ethers.<span class="token-function">JsonRpcProvider</span>(<span class="token-string">"https://testnet-rpc.monad.xyz"</span>);
+<span class="token-keyword">const</span> wallet <span class="token-operator">=</span> <span class="token-keyword">new</span> ethers.<span class="token-function">Wallet</span>(<span class="token-string">"YOUR_PRIVATE_KEY"</span>, provider);
+
+<span class="token-comment">// ────────────────────────────────────────────────</span>
+<span class="token-comment">// 2. SDK'nın Deploy Edilmiş Oracle Adresiyle Başlatılması</span>
+<span class="token-comment">// ────────────────────────────────────────────────</span>
+<span class="token-keyword">const</span> ORACLE_CONTRACT <span class="token-operator">=</span> <span class="token-string">"0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"</span>;
+<span class="token-keyword">const</span> oracle <span class="token-operator">=</span> <span class="token-keyword">new</span> <span class="token-function">QuantumSDK</span>(
+  <span class="token-string">"https://testnet-rpc.monad.xyz"</span>,
+  ORACLE_CONTRACT,
+  <span class="token-string">"YOUR_PRIVATE_KEY"</span>
+);
+
+console.<span class="token-function">log</span>(<span class="token-string">"✓ Quantum Oracle SDK başarıyla yapılandırıldı."</span>);
+
+<span class="token-comment">// ────────────────────────────────────────────────</span>
+<span class="token-comment">// 3. Kuantum Entropisi Çekme ve On-Chain Doğrulama</span>
+<span class="token-comment">// ────────────────────────────────────────────────</span>
+<span class="token-keyword">async</span> <span class="token-keyword">function</span> <span class="token-function">requestQuantumEntropy</span>() {
+  <span class="token-keyword">try</span> {
+    <span class="token-keyword">const</span> txHash <span class="token-operator">=</span> <span class="token-keyword">await</span> oracle.<span class="token-function">fetchAndSubmitRandom</span>();
+    console.<span class="token-function">log</span>(<span class="token-string">`Doğrulama İşlemi Onaylandı! Hash: ${txHash}`</span>);
+  } <span class="token-keyword">catch</span> (error) {
+    console.<span class="token-function">error</span>(<span class="token-string">"Oracle Hatası:"</span>, error.message);
+  }
+}
+
+<span class="token-function">requestQuantumEntropy</span>();</code></pre>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!--  SECTION 4: AKILLI KONTRAT ENTEGRASYONU     -->
+      <!-- ══════════════════════════════════════════ -->
+      <section class="doc-section" id="solidity">
+        <p class="section-eyebrow">[ SECTION 04 · SOLIDITY INTEGRATION ]</p>
+        <h2 class="section-title">4. Akıllı Kontrat Entegrasyonu</h2>
+        <p class="section-paragraph">Monad üzerindeki dApp kontratınızın kuantum rastgeleliğinden faydalanabilmesi için ana QuantumOracle kontratının arayüzünü tanımlayıp lastRandomNumber() metodu ile en son doğrulanan değeri okuması yeterlidir.</p>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCodeText(this)">KOPYALA</button>
+          <pre><code><span class="token-comment">// SPDX-License-Identifier: MIT</span>
+<span class="token-keyword">pragma</span> <span class="token-keyword">solidity</span> ^0.8.20;
+
+<span class="token-comment">// ──────────────────────────────────────────────</span>
+<span class="token-comment">// Oracle Kontrat Arayüzü</span>
+<span class="token-comment">// ──────────────────────────────────────────────</span>
+<span class="token-keyword">interface</span> IQuantumOracle {
+    <span class="token-keyword">function</span> <span class="token-function">lastRandomNumber</span>() <span class="token-keyword">external</span> <span class="token-keyword">view</span> <span class="token-keyword">returns</span> (<span class="token-type">uint8</span>);
+    <span class="token-keyword">function</span> <span class="token-function">consumeRandom</span>(<span class="token-type">uint8</span> _randomNumber, <span class="token-type">bytes</span> <span class="token-type">memory</span> _signature) <span class="token-keyword">external</span>;
+    <span class="token-keyword">function</span> <span class="token-function">oracleNode</span>() <span class="token-keyword">external</span> <span class="token-keyword">view</span> <span class="token-keyword">returns</span> (<span class="token-type">address</span>);
+}
+
+<span class="token-keyword">contract</span> QuantumLootBox {
+    IQuantumOracle <span class="token-keyword">public</span> <span class="token-keyword">immutable</span> quantumOracle;
+    
+    <span class="token-keyword">mapping</span>(<span class="token-type">address</span> => <span class="token-type">uint8</span>) <span class="token-keyword">public</span> playerRewards;
+    
+    <span class="token-keyword">event</span> <span class="token-function">LootBoxOpened</span>(<span class="token-type">address</span> <span class="token-keyword">indexed</span> player, <span class="token-type">uint8</span> rewardId, <span class="token-type">uint8</span> quantumEntropy);
+
+    <span class="token-keyword">constructor</span>(<span class="token-type">address</span> _oracleAddress) {
+        quantumOracle <span class="token-operator">=</span> IQuantumOracle(_oracleAddress);
+    }
+
+    <span class="token-comment">/// @notice Oyuncunun sandık açma fonksiyonu.</span>
+    <span class="token-comment">/// Frontend önce oracle.fetchAndSubmitRandom() çağrısıyla</span>
+    <span class="token-comment">/// kuantum verisini on-chain doğrulatmalıdır.</span>
+    <span class="token-keyword">function</span> <span class="token-function">openLootBox</span>() <span class="token-keyword">external</span> {
+        <span class="token-type">uint8</span> quantumEntropy <span class="token-operator">=</span> quantumOracle.<span class="token-function">lastRandomNumber</span>();
+        
+        <span class="token-comment">// 0-255 aralığındaki entropi → 1-10 arası ödül ID</span>
+        <span class="token-type">uint8</span> rewardId <span class="token-operator">=</span> (quantumEntropy <span class="token-operator">%</span> <span class="token-number">10</span>) <span class="token-operator">+</span> <span class="token-number">1</span>;
+        playerRewards[msg.sender] <span class="token-operator">=</span> rewardId;
+
+        <span class="token-keyword">emit</span> <span class="token-function">LootBoxOpened</span>(msg.sender, rewardId, quantumEntropy);
+    }
+}</code></pre>
+        </div>
+
+        <div class="callout">
+          <div class="callout-icon">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="callout-body">
+            <div class="callout-title">Önemli Uyarı</div>
+            <p class="callout-text">Kontratınızın bu SDK'dan gelen işlemi kabul edebilmesi için, deploy sonrası oracleNode adresinin akıllı kontrata tanıtılması zorunludur. Kontrat sahibi (deployer) cüzdanınızla updateOracleAddress(relayerPublicAddress) fonksiyonunu çağırarak Vercel relayer'ın imza adresini kaydedin. Aksi halde tüm consumeRandom işlemleri 'Gecersiz Oracle Imzasi' hatası ile revert olacaktır.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!--  SECTION 5: API REFERANSI                   -->
+      <!-- ══════════════════════════════════════════ -->
+      <section class="doc-section" id="api">
+        <p class="section-eyebrow">[ SECTION 05 · API REFERENCE ]</p>
+        <h2 class="section-title">5. API Referansı</h2>
+
+        <h3 class="section-subheading">fetchAndSubmitRandom()</h3>
+        <p class="section-paragraph">SDK'nın ana fonksiyonudur. Vercel üzerindeki kuantum relayer sunucusuna HTTPS isteği atarak fiziksel entropi ve ECDSA imzasını çeker, ardından bu veriyi MetaMask veya programatik cüzdan aracılığıyla Monad akıllı kontratına gönderir.</p>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCodeText(this)">KOPYALA</button>
+          <pre><code><span class="token-keyword">async</span> <span class="token-function">fetchAndSubmitRandom</span>(): <span class="token-type">Promise</span>&lt;<span class="token-type">string</span>&gt;</code></pre>
+        </div>
+
+        <h3 class="section-subheading">Parametreler</h3>
+        <p class="section-paragraph">Bu metot herhangi bir parametre almaz. Relayer URL'i ve kontrat adresi SDK constructor'ında tanımlanmıştır.</p>
+
+        <h3 class="section-subheading">Geri Dönüş Değeri (Return Type)</h3>
+        <p class="section-paragraph">İşlem başarıyla tamamlandığında Monad üzerindeki doğrulama işleminin transaction hash'ini (string) döndürür. Relayer'dan gelen ham veri aşağıdaki JSON yapısını içerir:</p>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCodeText(this)">KOPYALA</button>
+          <pre><code>{
+  <span class="token-string">"randomNumber"</span>: <span class="token-number">189</span>,
+  <span class="token-string">"signature"</span>: <span class="token-string">"0xf2b2dd70c6a2e48a930ff28eb06dc366..."</span>,
+  <span class="token-string">"oracleAddress"</span>: <span class="token-string">"0x011394599d3dd2d52c72Ebc285CE5df60c9b130A"</span>,
+  <span class="token-string">"source"</span>: <span class="token-string">"ANU QRNG"</span>
+}</code></pre>
+        </div>
+
+        <h3 class="section-subheading">getLastRandomNumber()</h3>
+        <p class="section-paragraph">On-chain'deki akıllı kontratı sorgulayarak en son doğrulanmış kuantum rastgele sayısını (uint8, 0-255) döndürür.</p>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCodeText(this)">KOPYALA</button>
+          <pre><code><span class="token-keyword">async</span> <span class="token-function">getLastRandomNumber</span>(): <span class="token-type">Promise</span>&lt;<span class="token-type">number</span>&gt;</code></pre>
+        </div>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCodeText(this)">KOPYALA</button>
+          <pre><code><span class="token-keyword">const</span> lastNumber <span class="token-operator">=</span> <span class="token-keyword">await</span> oracle.<span class="token-function">getLastRandomNumber</span>();
+console.<span class="token-function">log</span>(<span class="token-string">`Son Doğrulanan Kuantum Sayısı: ${lastNumber}`</span>);</code></pre>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!--  SECTION 6: HATA YÖNETİMİ                  -->
+      <!-- ══════════════════════════════════════════ -->
+      <section class="doc-section" id="errors">
+        <p class="section-eyebrow">[ SECTION 06 · ERROR HANDLING ]</p>
+        <h2 class="section-title">6. Hata Yönetimi</h2>
+        <p class="section-paragraph">Ağ gecikmeleri, API rate limitleri veya kullanıcının MetaMask üzerinden işlemi reddetmesi gibi durumları yakalamak için aşağıdaki try-catch hata yönetimi şablonunu uygulamanız önerilir:</p>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copyCodeText(this)">KOPYALA</button>
+          <pre><code><span class="token-keyword">async</span> <span class="token-keyword">function</span> <span class="token-function">safeQuantumRequest</span>() {
+  <span class="token-keyword">try</span> {
+    console.<span class="token-function">log</span>(<span class="token-string">"Kuantum entropisi talep ediliyor..."</span>);
+    <span class="token-keyword">const</span> txHash <span class="token-operator">=</span> <span class="token-keyword">await</span> oracle.<span class="token-function">fetchAndSubmitRandom</span>();
+    console.<span class="token-function">log</span>(<span class="token-string">`İşlem Onaylandı: ${txHash}`</span>);
+    
+  } <span class="token-keyword">catch</span> (error) {
+    <span class="token-comment">// ── Kullanıcı MetaMask'ta işlemi reddetti ──</span>
+    <span class="token-keyword">if</span> (error.code <span class="token-operator">===</span> <span class="token-string">"ACTION_REJECTED"</span> <span class="token-operator">||</span> error.message.<span class="token-function">includes</span>(<span class="token-string">"user rejected"</span>)) {
+      console.<span class="token-function">warn</span>(<span class="token-string">"İşlem kullanıcı tarafından iptal edildi."</span>);
+      <span class="token-keyword">return</span>;
+    }
+    
+    <span class="token-comment">// ── Relayer sunucusuna bağlantı kurulamadı ──</span>
+    <span class="token-keyword">if</span> (error.message.<span class="token-function">includes</span>(<span class="token-string">"ECONNREFUSED"</span>) <span class="token-operator">||</span> error.message.<span class="token-function">includes</span>(<span class="token-string">"Network Error"</span>)) {
+      console.<span class="token-function">error</span>(<span class="token-string">"Relayer sunucusuna ulaşılamıyor. Lütfen bağlantınızı kontrol edin."</span>);
+      <span class="token-keyword">return</span>;
+    }
+    
+    <span class="token-comment">// ── ANU API rate limit aşıldı (otomatik fallback devrede) ──</span>
+    <span class="token-keyword">if</span> (error.message.<span class="token-function">includes</span>(<span class="token-string">"429"</span>)) {
+      console.<span class="token-function">warn</span>(<span class="token-string">"Kuantum API istek limiti aşıldı. Otomatik fallback (qrandom.io) devrede."</span>);
+      <span class="token-keyword">return</span>;
+    }
+    
+    <span class="token-comment">// ── Oracle imza uyuşmazlığı ──</span>
+    <span class="token-keyword">if</span> (error.message.<span class="token-function">includes</span>(<span class="token-string">"Gecersiz Oracle Imzasi"</span>)) {
+      console.<span class="token-function">error</span>(<span class="token-string">"Oracle adresi kontratta kayıtlı değil. updateOracleAddress() çağırın."</span>);
+      <span class="token-keyword">return</span>;
+    }
+    
+    <span class="token-comment">// ── Beklenmedik hata ──</span>
+    console.<span class="token-function">error</span>(<span class="token-string">"Bilinmeyen Oracle Hatası:"</span>, error.message);
+  }
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!--  SECTION 7: GÜVENLİK & ZK VISION           -->
+      <!-- ══════════════════════════════════════════ -->
+      <section class="doc-section" id="security">
+        <p class="section-eyebrow">[ SECTION 07 · SECURITY &amp; QUANTUM ARCHITECTURE ]</p>
+        <h2 class="section-title">7. Güvenlik &amp; Kuantum Mimari</h2>
+        <p class="section-paragraph">Monad Quantum Oracle, ölçeklenebilir ve kuantum dirençli bir gelecek vizyonuyla inşa edilmiştir. Mevcut MVP sürümü, işlemlerin hızlı onaylanabilmesi ve düşük gas tüketimi için endüstri standardı ECDSA (secp256k1) imza doğrulama protokolüyle çalışmaktadır.</p>
+
+        <div class="callout">
+          <div class="callout-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="callout-body">
+            <div class="callout-title">V2 Mainnet Vizyonu — Trustless Mimari</div>
+            <p class="callout-text">Kalıcı Monad Mainnet sürümümüzle birlikte sistem tam anlamıyla trustless (güven gerektirmeyen) bir yapıya evrilecektir. Relayer sunucumuz ANU kuantum laboratuvarından HTTPS üzerinden veriyi çekerken arka planda zkTLS (TLSNotary / zkPass) teknolojisi kullanarak bir Sıfır Bilgi Kanıtı (ZK Proof) üretecektir. Bu kanıt, 'Bu sayıyı uydurmadım, gerçekten resmi qrng.anu.edu.au adresinden HTTPS ile çektim ve yolda değiştirmedim' gerçeğini kriptografik olarak kilitler. Akıllı kontratımız, laboratuvarın SSL/TLS sertifikasıyla mühürlenmiş bu ZK kanıtını doğrulayarak sistemi %100 trustless hale getirecektir. Ek olarak, post-quantum cryptography standartlarına uyum sağlamak adına ECDSA yerine Lamport Tek Seferlik İmzaları (Lamport OTS) devreye alınacaktır.</p>
+          </div>
+        </div>
+
+        <p class="section-paragraph">Bu evrimsel mimari sayesinde Monad Quantum Oracle, günümüzün en güçlü kuantum bilgisayarlarının bile kıramayacağı, fizik yasalarıyla korunan tam anlamıyla merkeziyetsiz bir rastgelelik altyapısı sunacaktır.</p>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!--  SCRIPTS                                         -->
+  <!-- ════════════════════════════════════════════════ -->
+  <script>
+    // ── COPY CODE ──
+    function copyCodeText(button) {
+      const codeEl = button.parentElement.querySelector('pre code');
+      if (!codeEl) return;
+
+      const text = codeEl.textContent;
+      navigator.clipboard.writeText(text).then(function () {
+        button.textContent = 'KOPYALANDI ✓';
+        button.style.color = '#c5ff4a';
+        button.style.borderColor = '#c5ff4a';
+        setTimeout(function () {
+          button.textContent = 'KOPYALA';
+          button.style.color = '';
+          button.style.borderColor = '';
+        }, 2000);
+      }).catch(function () {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        button.textContent = 'KOPYALANDI ✓';
+        button.style.color = '#c5ff4a';
+        button.style.borderColor = '#c5ff4a';
+        setTimeout(function () {
+          button.textContent = 'KOPYALA';
+          button.style.color = '';
+          button.style.borderColor = '';
+        }, 2000);
+      });
+    }
+
+    // ── INSTALL TABS ──
+    function switchInstallTab(tab) {
+      const npmBlock = document.getElementById('code-install-npm');
+      const yarnBlock = document.getElementById('code-install-yarn');
+      const npmTab = document.getElementById('tab-npm');
+      const yarnTab = document.getElementById('tab-yarn');
+
+      if (tab === 'npm') {
+        npmBlock.classList.add('visible');
+        yarnBlock.classList.remove('visible');
+        npmTab.classList.add('active');
+        yarnTab.classList.remove('active');
+      } else {
+        yarnBlock.classList.add('visible');
+        npmBlock.classList.remove('visible');
+        yarnTab.classList.add('active');
+        npmTab.classList.remove('active');
+      }
+    }
+
+    // ── SCROLL SPY ──
+    (function () {
+      const sections = document.querySelectorAll('.doc-section');
+      const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+      function updateActiveSidebarLink() {
+        let currentId = '';
+        const scrollY = window.scrollY;
+        const offset = 120;
+
+        sections.forEach(function (section) {
+          const top = section.offsetTop - offset;
+          const bottom = top + section.offsetHeight;
+          if (scrollY >= top && scrollY < bottom) {
+            currentId = section.getAttribute('id');
+          }
+        });
+
+        // If scrolled to bottom, activate last section
+        if (window.innerHeight + scrollY >= document.documentElement.scrollHeight - 20) {
+          currentId = sections[sections.length - 1].getAttribute('id');
+        }
+
+        sidebarLinks.forEach(function (link) {
+          if (link.getAttribute('data-section') === currentId) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+
+      window.addEventListener('scroll', updateActiveSidebarLink, { passive: true });
+      updateActiveSidebarLink();
+    })();
+  </script>
+</body>
+</html>

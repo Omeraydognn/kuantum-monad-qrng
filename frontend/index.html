@@ -688,6 +688,73 @@
     .doc-section:last-child {
       border-bottom: none;
     }
+
+    /* Syntax Highlighting */
+    .token-keyword { color: var(--color-signal-lime); font-weight: 600; }
+    .token-string { color: var(--color-bone); }
+    .token-comment { color: var(--color-ash); font-style: italic; }
+    .token-function { color: var(--color-chalk); }
+    .token-type { color: var(--color-pearl); }
+    .token-operator { color: var(--color-signal-lime); }
+
+    /* Callout Box */
+    .callout {
+      background-color: var(--color-void-black);
+      border-left: 3px solid var(--color-signal-lime);
+      padding: var(--spacing-16);
+      margin: var(--spacing-20) 0;
+      display: flex;
+      gap: var(--spacing-14);
+      align-items: flex-start;
+      border-radius: 0 4px 4px 0;
+    }
+    .callout.callout-warning {
+      border-left-color: var(--color-signal-lime);
+    }
+    .callout-icon {
+      color: var(--color-signal-lime);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .callout-content {
+      font-family: var(--font-inter-tight);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--color-bone);
+    }
+    .callout-title {
+      font-weight: 600;
+      color: var(--color-chalk);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Installation Tabs */
+    .install-tabs {
+      display: flex;
+      gap: 10px;
+      border-bottom: 1px solid var(--color-graphite);
+      margin-bottom: var(--spacing-12);
+    }
+    .install-tab-btn {
+      background: none;
+      border: none;
+      color: var(--color-ash);
+      font-family: var(--font-inter-tight);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .install-tab-btn.active {
+      color: var(--color-signal-lime);
+      border-bottom-color: var(--color-signal-lime);
+    }
   </style>
 </head>
 <body>
@@ -699,7 +766,7 @@
       
       <div class="nav-links">
         <button id="nav-protocol" class="nav-item active">Protocol</button>
-        <button id="nav-docs" class="nav-item">Documentation</button>
+        <a href="docs.html" class="nav-item" style="text-decoration: none;">Documentation</a>
         <span class="nav-item" style="opacity: 0.4; cursor: not-allowed;">Ecosystem</span>
         <span class="nav-item" style="opacity: 0.4; cursor: not-allowed;">Metrics</span>
       </div>
@@ -836,252 +903,6 @@
     </div>
 
   </div> <!-- view-console -->
-
-  <!-- Developer Documentation View -->
-  <div id="view-docs" class="tab-content" style="display: none; width: 100%; max-width: var(--page-max-width); padding: 0 var(--spacing-24) 100px var(--spacing-24); margin: 0 auto;">
-    <div style="display: grid; grid-template-columns: 280px 1fr; gap: var(--spacing-44); align-items: start;">
-      
-      <!-- Sidebar Index links -->
-      <div class="docs-sidebar">
-        <div class="detail-label">[ DOCUMENTATION INDEX ]</div>
-        <a href="#doc-architecture" class="doc-side-link active">1. Mimari Genel Bakış</a>
-        <a href="#doc-install" class="doc-side-link">2. Kurulum &amp; Kurulum</a>
-        <a href="#doc-quickstart" class="doc-side-link">3. Hızlı Başlangıç</a>
-        <a href="#doc-api" class="doc-side-link">4. Gelişmiş SDK Metotları</a>
-        <a href="#doc-contract" class="doc-side-link">5. Akıllı Kontrat Entegrasyonu</a>
-        <a href="#doc-errors" class="doc-side-link">6. SSS &amp; Hata Yönetimi</a>
-      </div>
-
-      <!-- Main docs area -->
-      <div class="docs-content" style="display: flex; flex-direction: column; gap: var(--spacing-44);">
-        <h2 class="card-title" style="font-size: var(--text-heading); border-bottom: 1px solid var(--color-graphite); padding-bottom: 20px;">
-          Kuantum Oracle <span class="italic-accent">SDK Dokümantasyonu</span>
-        </h2>
-
-        <!-- Section 1: Architecture -->
-        <section id="doc-architecture" class="doc-section">
-          <div class="eyebrow-label">[ OVERVIEW · ARCHITECTURE ]</div>
-          <h3 class="card-title">1. Mimari Genel Bakış</h3>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-20); color: var(--color-bone);">
-            Monad Quantum Oracle, tamamen pull-based (talep üzerine) çalışan, kriptografik doğrulamalı bir kuantum rastgelelik hizmetidir. Klasik on-chain rastgelelik yöntemleri blok parametrelerini manipüle etmeye açıkken veya VRF modelleri yüksek gas ücretleri ve bloklar arası gecikmelere sebep olurken, bu sistem fiziksel kuantum entropisini saniyeler altında akıllı kontratınıza taşır.
-          </p>
-
-          <!-- ASCII Flow Diagram inside Code Block -->
-          <div class="code-container">
-            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
-            <pre class="code-block-panel"><code class="language-text">
- [ Fiziksel Kuantum Kaynağı ]
-       (ANU / qrandom.io)
-               │
-               ▼  API / Vakum Dalgalanmaları
- ┌───────────────────────────┐
- │    Oracle Relayer Node    │ ───► secp256k1 ile İmzalama
- └───────────────────────────┘
-               │
-               ▼  HTTP: JSON { randomNumber, signature, oracleAddress }
- ┌───────────────────────────┐
- │   Developer JS/TS SDK     │
- └───────────────────────────┘
-               │
-               ▼  Monad Tx: consumeRandom(value, signature)
- ┌───────────────────────────┐
- │    QuantumOracle.sol      │ ───► ecrecover doğrulaması yapar
- └───────────────────────────┘      (Geçerliyse veriyi kaydeder)
-            </code></pre>
-          </div>
-          <p class="hero-subtext" style="max-width: 100%; margin-top: var(--spacing-16); color: var(--color-ash);">
-            <strong>Çalışma Prensibi:</strong> Fiziksel kuantum donanımından toplanan entropi (uint8), Relayer düğümü tarafından özel anahtar (Private Key) ile imzalanır. SDK, bu imzalı paketi sunucudan çeker ve doğrudan Monad üzerindeki doğrulayıcı akıllı kontrata işlem olarak gönderir. Kontrat üzerindeki ECDSA kütüphanesi imzacıyı doğrular; yetkili sunucu imzası dışındaki tüm manipüle edilmiş işlemler ağ seviyesinde revert edilir.
-          </p>
-        </section>
-        
-        <!-- Section 2: Installation -->
-        <section id="doc-install" class="doc-section">
-          <div class="eyebrow-label">[ STEP 01 / 04 ]</div>
-          <h3 class="card-title">2. Kurulum</h3>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); color: var(--color-bone);">
-            Kuantum Oracle entegrasyonu için resmi SDK paketini ve Web3 işlemleri için <strong>Ethers.js v6</strong> kütüphanesini projenizin bağımlılıklarına ekleyin:
-          </p>
-          
-          <div class="code-container">
-            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
-            <pre class="code-block-panel"><code class="language-bash">npm install kuantum-qrng-sdk ethers axios</code></pre>
-          </div>
-        </section>
-
-        <!-- Section 3: Quick Start -->
-        <section id="doc-quickstart" class="doc-section">
-          <div class="eyebrow-label">[ STEP 02 / 04 ]</div>
-          <h3 class="card-title">3. Hızlı Başlangıç</h3>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); color: var(--color-bone);">
-            SDK sınıfını (`QuantumOracleSDK`) başlatarak cüzdanınız (Signer veya Wallet) ve deploy edilmiş olan Monad akıllı kontrat adresinizle sistemi saniyeler içinde çalıştırabilirsiniz:
-          </p>
-          
-          <div class="code-container">
-            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
-            <pre class="code-block-panel"><code class="language-javascript">import { QuantumOracleSDK } from "kuantum-qrng-sdk";
-import { ethers } from "ethers";
-
-// 1. Monad RPC Sağlayıcısı ve İşlemi Gönderecek Cüzdanın Kurulması
-const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz");
-const wallet = new ethers.Wallet("0x_OZEL_ANAHTARINIZ", provider);
-
-// 2. Kuantum Oracle SDK'sının Akıllı Kontrat Adresiyle Başlatılması
-const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-const oracle = new QuantumOracleSDK(contractAddress, wallet);
-
-console.log("SDK Başarıyla Yapılandırıldı.");</code></pre>
-          </div>
-        </section>
-
-        <!-- Section 4: Advanced API Methods -->
-        <section id="doc-api" class="doc-section">
-          <div class="eyebrow-label">[ ADVANCED USAGE · METODLAR ]</div>
-          <h3 class="card-title">4. Gelişmiş SDK Metotları</h3>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); color: var(--color-bone);">
-            SDK, esnek işlem yapısı sunmak için adımları parçalı olarak yönetmenize imkan tanır. Veriyi çekip (fetch), ağa göndermeyi (submit) ayrı adımlarda gerçekleştirebilirsiniz:
-          </p>
-          
-          <div class="code-container">
-            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
-            <pre class="code-block-panel"><code class="language-javascript">// 1. fetchRandomData() -> Relayer'dan kuantum entropisini çeker fakat ağa göndermez
-const quantumPayload = await oracle.fetchRandomData();
-console.log("Kuantum Değeri:", quantumPayload.randomNumber); // uint8
-console.log("Kriptografik İmza:", quantumPayload.signature);
-
-// 2. submitRandomData() -> Çekilen kuantum verisini akıllı kontratta doğrulamak için ağa gönderir
-const tx = await oracle.submitRandomData(
-    quantumPayload.randomNumber,
-    quantumPayload.signature
-);
-const receipt = await tx.wait();
-console.log("Doğrulama işlemi blockchain onayını aldı. Blok:", receipt.blockNumber);
-
-// 3. fetchAndSubmitRandom() -> Çekme ve gönderme işlemlerini tek adımda otomatik yapar
-const txResult = await oracle.fetchAndSubmitRandom();
-console.log(`Otomatik İşlem Başarılı! Kuantum Sayısı: ${txResult.randomNumber}`);</code></pre>
-          </div>
-        </section>
-
-        <!-- Section 5: Smart Contract Integration -->
-        <section id="doc-contract" class="doc-section">
-          <div class="eyebrow-label">[ CONTRACT INTEGRATION · PIPELINE ]</div>
-          <h3 class="card-title">5. Akıllı Kontrat Entegrasyonu</h3>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-20); color: var(--color-bone);">
-            Geliştiriciler kuantum oracle sistemini kendi dApp'lerine entegre ederken iki aşamalı (iki adımlı) basit bir iş akışı uygularlar. Bu yöntem, oracle doğrulamasını ve oyun mantığını birbirinden ayırarak gas tüketimini optimize eder ve sistemin güvenliğini artırır.
-          </p>
-
-          <h4 style="color: var(--color-chalk); font-size: 14px; margin-bottom: 8px; font-family: var(--font-inter-tight); font-weight: 600;">1. Adım A: On-Chain Entegrasyon (Solidity Kontratı)</h4>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-12); font-size: 13px; color: var(--color-ash);">
-            Kendi akıllı kontratınızda (örneğin bir RPG sandık açma sistemi), deploy edilmiş olan ana <code>QuantumOracle</code> kontratından en son doğrulanan rastgele sayıyı çekmek için <code>lastRandomNumber()</code> metodunu çağırmanız yeterlidir:
-          </p>
-          
-          <div class="code-container">
-            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
-            <pre class="code-block-panel"><code class="language-solidity">// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-// Ana QuantumOracle kontratının arayüzü
-interface IQuantumOracle {
-    function lastRandomNumber() external view returns (uint8);
-}
-
-contract GameLootBox {
-    // Monad testnet üzerindeki QuantumOracle kontrat adresi
-    address public oracleAddress = 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512;
-
-    // Oyuncuların kazandığı kılıçların ID listesi
-    mapping(address => uint8) public playerSwords;
-
-    event LootBoxOpened(address indexed player, uint8 swordId);
-
-    // İstemci (Frontend) önce oracle.fetchAndSubmitRandom() çağrısını onaylatır.
-    // Ardından bu fonksiyonu tetikleyerek ödülünü kuantum rastgeleliğine göre alır.
-    function openLootBox() external {
-        // Oracle kontratından son doğrulanan kuantum sayısını çekiyoruz
-        uint8 quantumNumber = IQuantumOracle(oracleAddress).lastRandomNumber();
-        
-        // 0-255 aralığındaki sayıyı mod alarak 1-10 arası kılıç ID'sine eşitle
-        uint8 swordId = (quantumNumber % 10) + 1;
-        playerSwords[msg.sender] = swordId;
-
-        emit LootBoxOpened(msg.sender, swordId);
-    }
-}</code></pre>
-          </div>
-
-          <h4 style="color: var(--color-chalk); font-size: 14px; margin-top: var(--spacing-24); margin-bottom: 8px; font-family: var(--font-inter-tight); font-weight: 600;">2. Adım B: Off-Chain Entegrasyon (Frontend JS Kodu)</h4>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-12); font-size: 13px; color: var(--color-ash);">
-            Oyun arayüzünüzde (frontend), oyuncu "Sandık Aç" butonuna tıkladığı an önce SDK'yı çalıştırarak yeni kuantum sayısını on-chain onaylatın, hemen ardından kendi oyun kontratınızdaki <code>openLootBox()</code> metodunu tetikleyin:
-          </p>
-
-          <div class="code-container">
-            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
-            <pre class="code-block-panel"><code class="language-javascript">import { QuantumOracleSDK } from "kuantum-qrng-sdk";
-import { ethers } from "ethers";
-
-// Ethers ve SDK Yapılandırması
-const provider = new ethers.BrowserProvider(window.ethereum);
-const signer = await provider.getSigner();
-
-const oracle = new QuantumOracleSDK("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", signer);
-const gameAddress = "0x_OYUN_KONTRAT_ADRESINIZ";
-const gameAbi = [ "function openLootBox() external" ];
-
-async function handlePlayGame() {
-    try {
-        console.log("1. Adım: Yeni Kuantum Rastgele Sayısı On-Chain Doğrulanıyor...");
-        // SDK, relayer'dan imzalı veriyi çeker ve Oracle kontratına gönderir
-        const oracleReceipt = await oracle.fetchAndSubmitRandom();
-        console.log("Kuantum sayısı doğrulandı! Tx:", oracleReceipt.hash);
-
-        console.log("2. Adım: Oyun Akıllı Kontratındaki Lootbox Tetikleniyor...");
-        const gameContract = new ethers.Contract(gameAddress, gameAbi, signer);
-        const gameTx = await gameContract.openLootBox();
-        const receipt = await gameTx.wait();
-        
-        console.log("Tebrikler! Lootbox kuantum sayılarına göre başarıyla açıldı.");
-    } catch (error) {
-        console.error("Entegrasyon Hatası:", error);
-    }
-}</code></pre>
-          </div>
-        </section>
-
-        <!-- Section 6: FAQ & Error Handling -->
-        <section id="doc-errors" class="doc-section">
-          <div class="eyebrow-label">[ DEBUGGING · FAQ ]</div>
-          <h3 class="card-title">6. SSS &amp; Hata Yönetimi</h3>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); color: var(--color-bone);">
-            Geliştiricilerin karşılaşabileceği yaygın durumlar ve bunların kriptografik çözümleri aşağıda açıklanmıştır:
-          </p>
-
-          <h4 style="color: var(--color-chalk); font-size: 14px; margin-bottom: 8px; font-family: var(--font-inter-tight); font-weight: 600;">1. "Gecersiz Oracle Imzasi" Hatası</h4>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); font-size: 13px; color: var(--color-ash);">
-            Bu hata, akıllı kontrata gönderilen imzayı atan Relayer node'un public adresi ile akıllı kontrattaki yetkili <code>oracleNode</code> adresinin uyuşmadığını gösterir. Relayer her başladığında yeni bir cüzdan anahtarı üretebilir. Bu durumda kontrat sahibi (`owner`), `updateOracleAddress(newOracleAddress)` fonksiyonunu çağırarak kontrattaki adresi güncellemelidir.
-          </p>
-
-          <h4 style="color: var(--color-chalk); font-size: 14px; margin-bottom: 8px; font-family: var(--font-inter-tight); font-weight: 600;">2. Rate Limit (HTTP 429) &amp; Fallback Desteği</h4>
-          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); font-size: 13px; color: var(--color-ash);">
-            Fiziksel kuantum kaynak sağlayıcımız (ANU API) dakika başına 1 istek limiti uygulamaktadır. Relayer sunucumuz bu limite takıldığında otomatik olarak <strong>qrandom.io</strong> kuantum kaynağına geçiş yapar (Failover). SDK geliştiricisi olarak bu durumu yakalamak için aşağıdaki hata yönetimi desenini uygulayabilirsiniz:
-          </p>
-
-          <div class="code-container">
-            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
-            <pre class="code-block-panel"><code class="language-javascript">try {
-    const tx = await oracle.fetchAndSubmitRandom();
-} catch (error) {
-    if (error.message.includes("429")) {
-        console.warn("Kuantum API istek limiti aşıldı, otomatik fallback devrede.");
-    } else {
-        console.error("Beklenmeyen Hata:", error.message);
-    }
-}</code></pre>
-          </div>
-        </section>
-        
-      </div>
-    </div>
-  </div> <!-- view-docs -->
 
   <script>
     // State Variables
@@ -1440,28 +1261,6 @@ async function handlePlayGame() {
     // Initialize 3D Quantum Engine
     init3DQuantumCore();
 
-    // Tab Switching Logic
-    const navProtocol = document.getElementById('nav-protocol');
-    const navDocs = document.getElementById('nav-docs');
-    const viewConsole = document.getElementById('view-console');
-    const viewDocs = document.getElementById('view-docs');
-
-    navProtocol.addEventListener('click', () => {
-      navProtocol.classList.add('active');
-      navDocs.classList.remove('active');
-      viewConsole.style.display = 'grid';
-      viewDocs.style.display = 'none';
-      log('Protocol Console view selected.', 'sys');
-    });
-
-    navDocs.addEventListener('click', () => {
-      navDocs.classList.add('active');
-      navProtocol.classList.remove('active');
-      viewConsole.style.display = 'none';
-      viewDocs.style.display = 'block';
-      log('Developer Documentation view selected.', 'sys');
-    });
-
     // Copy Code Blocks Logic
     window.copyCodeText = function(btn) {
       const codeContainer = btn.parentElement;
@@ -1486,33 +1285,6 @@ async function handlePlayGame() {
         console.error('Copy failed:', err);
       });
     };
-
-    // Docs Sidebar Active States on Scroll Spy
-    const docSections = document.querySelectorAll('.doc-section');
-    const docSidebarLinks = document.querySelectorAll('.doc-side-link');
-
-    window.addEventListener('scroll', () => {
-      let currentSectionId = '';
-      const scrollPosition = window.scrollY + 200;
-
-      docSections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-          currentSectionId = section.getAttribute('id');
-        }
-      });
-
-      if (currentSectionId) {
-        docSidebarLinks.forEach(link => {
-          if (link.getAttribute('href') === `#${currentSectionId}`) {
-            link.classList.add('active');
-          } else {
-            link.classList.remove('active');
-          }
-        });
-      }
-    });
 
   </script>
 </body>
