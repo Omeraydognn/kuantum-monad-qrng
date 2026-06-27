@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monad Quantum Randomness Oracle (QRNG) - Classified Protocol</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,500;1,8..60,600&display=swap" rel="stylesheet">
+  
+  <!-- Ethers.js v6 UMD CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.1/dist/ethers.umd.min.js"></script>
+  <!-- Three.js UMD CDN for 3D Quantum Rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    :root {
+      /* Colors */
+      --color-void-black: #000000;
+      --color-carbon: #060606;
+      --color-graphite: #252525;
+      --color-onyx: #1f1f1f;
+      --color-iron: #313131;
+      --color-slate: #3d3d3d;
+      --color-fog: #525252;
+      --color-ash: #7a7a7a;
+      --color-smoke: #8a8a8a;
+      --color-pearl: #c5c5c5;
+      --color-bone: #e5e5e5;
+      --color-chalk: #ffffff;
+      --color-signal-lime: #c5ff4a;
+      --color-olive-depth: #597321;
+      --color-moss-shadow: #314013;
+
+      /* Typography — Font Families */
+      --font-pt-serif: 'Source Serif 4', 'PT Serif', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+      --font-inter-tight: 'Inter Tight', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-jetbrains-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-ui-monospace: 'ui-monospace', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+      /* Typography — Scale */
+      --text-caption: 10px;
+      --leading-caption: 1.2;
+      --tracking-caption: 0.24px;
+      --text-body: 14px;
+      --leading-body: 1.55;
+      --text-subheading: 20px;
+      --leading-subheading: 1.3;
+      --tracking-subheading: -0.2px;
+      --text-heading-sm: 32px;
+      --leading-heading-sm: 1.15;
+      --tracking-heading-sm: -0.4px;
+      --text-heading: 49px;
+      --leading-heading: 1.05;
+      --tracking-heading: -1px;
+      --text-heading-lg: 72px;
+      --leading-heading-lg: 0.98;
+      --tracking-heading-lg: -1.8px;
+      --text-display: 89px;
+      --leading-display: 0.94;
+      --tracking-display: -3.1px;
+
+      /* Spacing */
+      --spacing-4: 4px;
+      --spacing-6: 6px;
+      --spacing-7: 7px;
+      --spacing-8: 8px;
+      --spacing-10: 10px;
+      --spacing-12: 12px;
+      --spacing-14: 14px;
+      --spacing-16: 16px;
+      --spacing-18: 18px;
+      --spacing-20: 20px;
+      --spacing-22: 22px;
+      --spacing-24: 24px;
+      --spacing-28: 28px;
+      --spacing-30: 30px;
+      --spacing-32: 32px;
+      --spacing-44: 44px;
+
+      /* Layout */
+      --page-max-width: 1280px;
+      --radius-tags: 2px;
+      --radius-cards: 0px;
+      --radius-buttons: 4px;
+      --radius-logotiles: 4px;
+
+      /* Shadows */
+      --shadow-sm: rgba(197, 255, 74, 0.45) 0px 0px 8px 0px;
+
+      /* Surfaces */
+      --surface-canvas: var(--color-carbon);
+      --surface-card: var(--color-onyx);
+      --surface-raised: var(--color-graphite);
+      --surface-hover: var(--color-iron);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-inter-tight);
+      background-color: var(--surface-canvas);
+      color: var(--color-bone);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      width: 100%;
+      background-color: var(--color-void-black);
+      border-bottom: 1px solid var(--color-graphite);
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 var(--spacing-24);
+    }
+
+    .nav-container {
+      width: 100%;
+      max-width: var(--page-max-width);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-link {
+      font-family: var(--font-pt-serif);
+      font-weight: 300;
+      font-size: var(--text-subheading);
+      color: var(--color-chalk);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: var(--spacing-32);
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+    }
+
+    .nav-item {
+      font-family: var(--font-inter-tight);
+      font-weight: 500;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--color-chalk);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: var(--color-signal-lime);
+    }
+
+    /* Ghost Nav Button / Secondary CTA */
+    .btn-outlined-green {
+      background: transparent;
+      border: 1px solid var(--color-signal-lime);
+      color: var(--color-signal-lime);
+      padding: 10px var(--spacing-20);
+      font-family: var(--font-inter-tight);
+      font-weight: 500;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-radius: var(--radius-buttons);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-8);
+    }
+
+    .btn-outlined-green:hover {
+      background-color: rgba(197, 255, 74, 0.1);
+      box-shadow: 0 0 12px 0 rgba(197, 255, 74, 0.6);
+    }
+
+    /* Hero Section */
+    .hero {
+      width: 100%;
+      max-width: var(--page-max-width);
+      padding: 100px var(--spacing-24) 60px var(--spacing-24);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Pointillist SVG Quantum Computer Lattice Background */
+    .quantum-lattice-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.85;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quantum-lattice-svg {
+      width: 100%;
+      max-width: 900px;
+      height: auto;
+    }
+
+    .eyebrow-label {
+      font-family: var(--font-inter-tight);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: var(--color-ash);
+      margin-bottom: var(--spacing-20);
+    }
+
+    .hero-title {
+      font-family: var(--font-pt-serif);
+      font-weight: 300;
+      font-size: var(--text-display);
+      line-height: var(--leading-display);
+      letter-spacing: var(--tracking-display);
+      color: var(--color-chalk);
+      max-width: 950px;
+      margin-bottom: var(--spacing-24);
+    }
+
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: var(--text-heading);
+        line-height: var(--leading-heading);
+        letter-spacing: var(--tracking-heading);
+      }
+    }
+
+    .italic-accent {
+      font-family: var(--font-pt-serif);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--color-signal-lime);
+    }
+
+    .hero-subtext {
+      font-family: var(--font-inter-tight);
+      font-weight: 400;
+      font-size: var(--text-body);
+      line-height: var(--leading-body);
+      color: var(--color-bone);
+      max-width: 520px;
+      margin-bottom: var(--spacing-32);
+    }
+
+    /* Logo Tile */
+    .logo-tile {
+      width: 64px;
+      height: 64px;
+      background-color: var(--color-signal-lime);
+      border-radius: var(--radius-logotiles);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--spacing-30);
+    }
+
+    .logo-tile-letter {
+      font-family: var(--font-pt-serif);
+      font-weight: 300;
+      font-size: 36px;
+      color: var(--color-void-black);
+    }
+
+    /* Neon Section Divider */
+    .neon-divider {
+      width: 100vw;
+      height: 6px;
+      background-color: var(--color-signal-lime);
+      border: none;
+      margin: 40px 0;
+    }
+
+    /* Main Dashboard Grid Layout */
+    .dashboard {
+      width: 100%;
+      max-width: var(--page-max-width);
+      padding: 0 var(--spacing-24) 100px var(--spacing-24);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-32);
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sharp Content Card */
+    .card {
+      background-color: var(--surface-card);
+      border: 1px solid var(--color-graphite);
+      border-radius: var(--radius-cards);
+      padding: var(--spacing-32);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .card-header-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-inter-tight);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: var(--color-ash);
+      border-bottom: 1px solid var(--color-graphite);
+      padding-bottom: var(--spacing-16);
+      margin-bottom: var(--spacing-24);
+    }
+
+    .card-title {
+      font-family: var(--font-pt-serif);
+      font-weight: 300;
+      font-size: var(--text-heading-sm);
+      line-height: var(--leading-heading-sm);
+      letter-spacing: var(--tracking-heading-sm);
+      color: var(--color-chalk);
+      margin-bottom: var(--spacing-20);
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: var(--spacing-24);
+    }
+
+    label {
+      display: block;
+      font-family: var(--font-inter-tight);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--color-ash);
+      margin-bottom: var(--spacing-8);
+    }
+
+    input {
+      width: 100%;
+      background-color: var(--color-void-black);
+      border: 1px solid var(--color-graphite);
+      border-radius: var(--radius-tags);
+      padding: var(--spacing-14) var(--spacing-16);
+      color: var(--color-chalk);
+      font-family: var(--font-jetbrains-mono);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input:focus {
+      border-color: var(--color-signal-lime);
+    }
+
+    /* Buttons */
+    .btn-primary-lime {
+      background-color: var(--color-signal-lime);
+      color: var(--color-void-black);
+      border: none;
+      padding: var(--spacing-14) var(--spacing-24);
+      font-family: var(--font-inter-tight);
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-radius: var(--radius-buttons);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-8);
+    }
+
+    .btn-primary-lime:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 0 14px 0 rgba(197, 255, 74, 0.65);
+    }
+
+    .btn-primary-lime:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary-dark {
+      background-color: var(--surface-raised);
+      border: 1px solid var(--color-iron);
+      color: var(--color-chalk);
+      padding: var(--spacing-14) var(--spacing-24);
+      font-family: var(--font-inter-tight);
+      font-weight: 500;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-radius: var(--radius-buttons);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-8);
+    }
+
+    .btn-secondary-dark:hover:not(:disabled) {
+      background-color: var(--surface-hover);
+      border-color: var(--color-fog);
+    }
+
+    .btn-secondary-dark:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .card-actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-16);
+      margin-bottom: var(--spacing-28);
+    }
+
+    @media (max-width: 600px) {
+      .card-actions-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Entropy Console Elements */
+    .quantum-core-display {
+      background-color: var(--color-void-black);
+      border: 1px solid var(--color-graphite);
+      padding: var(--spacing-30) var(--spacing-20);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--spacing-28);
+      position: relative;
+    }
+
+    .display-quantum-value {
+      font-family: var(--font-pt-serif);
+      font-weight: 300;
+      font-size: 5rem;
+      color: var(--color-signal-lime);
+      text-shadow: 0 0 16px rgba(197, 255, 74, 0.5);
+    }
+
+    /* Details Grid */
+    .details-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-16);
+      margin-bottom: var(--spacing-24);
+    }
+
+    .detail-row {
+      background-color: var(--color-void-black);
+      border: 1px dashed var(--color-slate);
+      padding: var(--spacing-16);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-6);
+    }
+
+    .detail-label {
+      font-family: var(--font-inter-tight);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--color-ash);
+    }
+
+    .detail-value {
+      font-family: var(--font-jetbrains-mono);
+      font-size: 13px;
+      color: var(--color-bone);
+      word-break: break-all;
+    }
+
+    /* Code Block / Log Panel */
+    .code-block-panel {
+      background-color: var(--surface-raised);
+      border: 1px solid var(--color-iron);
+      padding: var(--spacing-24);
+      border-radius: var(--radius-buttons);
+      font-family: var(--font-jetbrains-mono);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--color-bone);
+      position: relative;
+    }
+
+    .code-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-16);
+    }
+
+    .code-title {
+      font-family: var(--font-inter-tight);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--color-smoke);
+    }
+
+    /* Status Tag Pill */
+    .status-tag {
+      background: transparent;
+      border: 1px solid var(--color-signal-lime);
+      color: var(--color-signal-lime);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-family: var(--font-inter-tight);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-6);
+    }
+
+    .console-log-area {
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-8);
+      padding-right: var(--spacing-8);
+    }
+
+    .console-log-area::-webkit-scrollbar {
+      width: 4px;
+    }
+    .console-log-area::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .console-log-area::-webkit-scrollbar-thumb {
+      background: var(--color-graphite);
+      border-radius: 2px;
+    }
+
+    .log-line {
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .log-time { color: var(--color-ash); }
+    .log-sys { color: var(--color-pearl); }
+    .log-success { color: var(--color-signal-lime); }
+    .log-error { color: var(--color-secondary-color); }
+    .log-accent { color: var(--color-signal-lime); font-style: italic; }
+
+    /* Badge and States */
+    .badge {
+      font-family: var(--font-inter-tight);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    
+    .badge-disconnected {
+      color: var(--color-ash);
+    }
+
+    .badge-connected {
+      color: var(--color-signal-lime);
+      text-shadow: 0 0 4px var(--color-signal-lime);
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Docs Sidebar Links */
+    .docs-sidebar {
+      position: sticky;
+      top: 96px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-16);
+    }
+
+    .doc-side-link {
+      font-family: var(--font-inter-tight);
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--color-ash);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      padding-left: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .doc-side-link:hover, .doc-side-link.active {
+      color: var(--color-signal-lime);
+      border-left-color: var(--color-signal-lime);
+    }
+
+    /* Code Container & Copy Button */
+    .code-container {
+      position: relative;
+      margin-top: var(--spacing-12);
+    }
+
+    .btn-copy-code {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: var(--color-void-black);
+      border: 1px solid var(--color-graphite);
+      color: var(--color-ash);
+      font-family: var(--font-inter-tight);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 6px 10px;
+      border-radius: var(--radius-buttons);
+      cursor: pointer;
+      z-index: 5;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s ease;
+    }
+
+    .btn-copy-code:hover {
+      color: var(--color-signal-lime);
+      border-color: var(--color-signal-lime);
+      background-color: rgba(197, 255, 74, 0.05);
+    }
+
+    .doc-section {
+      border-bottom: 1px solid var(--color-graphite);
+      padding-bottom: 40px;
+      margin-bottom: 40px;
+    }
+
+    .doc-section:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <div class="top-nav">
+    <div class="nav-container">
+      <a href="#" class="logo-link">MONAD <span class="italic-accent">QRNG</span></a>
+      
+      <div class="nav-links">
+        <button id="nav-protocol" class="nav-item active">Protocol</button>
+        <button id="nav-docs" class="nav-item">Documentation</button>
+        <span class="nav-item" style="opacity: 0.4; cursor: not-allowed;">Ecosystem</span>
+        <span class="nav-item" style="opacity: 0.4; cursor: not-allowed;">Metrics</span>
+      </div>
+
+      <button id="btn-connect" class="btn-outlined-green">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-3"/></svg>
+        <span>Connect Wallet</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <!-- 3D WebGL Canvas for Quantum Bloch Sphere Particle Core -->
+    <div class="quantum-lattice-container">
+      <div id="canvas3d-container" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: -1;"></div>
+    </div>
+
+    <div class="eyebrow-label">[ SECURED BY LAWS OF QUANTUM PHYSICS ]</div>
+    <h2 class="hero-title">
+      True Quantum Entropy for the <span class="italic-accent">Verifiable Internet.</span>
+    </h2>
+    <p class="hero-subtext">
+      A pull-based, post-quantum cryptography primitive supplying authentic physical randomness to the Monad network at sub-millisecond speeds.
+    </p>
+
+    <!-- Logo Tile -->
+    <div class="logo-tile">
+      <span class="logo-tile-letter">Q</span>
+    </div>
+  </div>
+
+  <!-- Neon Section Divider -->
+  <hr class="neon-divider" />
+
+  <!-- Dashboard Grid Wrap (Protocol View) -->
+  <div id="view-console" class="tab-content dashboard">
+    
+    <!-- Left Column: Settings and Logging -->
+    <div style="display: flex; flex-direction: column; gap: var(--spacing-32);">
+      
+      <!-- Configuration Card -->
+      <div class="card">
+        <div class="card-header-meta">
+          <span>[ NODE INTEGRATION · LAYER 1 ]</span>
+          <span id="wallet-status-badge" class="badge badge-disconnected">● DISCONNECTED</span>
+        </div>
+        
+        <h3 class="card-title">Node Configuration</h3>
+        
+        <div class="form-group">
+          <label for="input-contract">Deploysu Yapılmış Kontrat Adresi (QuantumOracle)</label>
+          <input type="text" id="input-contract" value="0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" placeholder="0x..." />
+        </div>
+
+        <div class="form-group">
+          <label for="input-relayer">Relayer API Adresi</label>
+          <input type="text" id="input-relayer" value="http://localhost:3000" />
+        </div>
+
+        <button id="btn-update-oracle" class="btn-secondary-dark" style="width: 100%;" disabled>
+          Oracle Adresini Kontrata Tanıt
+        </button>
+      </div>
+
+      <!-- Logging Card -->
+      <div class="card">
+        <div class="card-header-meta">
+          <span>[ CRYPTOGRAPHIC EVIDENCE LOGS ]</span>
+          <span>B 01</span>
+        </div>
+        <h3 class="card-title">System Log Terminal</h3>
+        
+        <div class="code-block-panel">
+          <div class="code-header-row">
+            <span class="code-title">Terminal Output</span>
+            <span id="status-tag-pill" class="status-tag">● STANDBY</span>
+          </div>
+          <div id="console" class="console-log-area">
+            <div class="log-line"><span class="log-time">[12:00:00]</span> <span class="log-sys">[System] Ready. Please connect wallet and configure contract address.</span></div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Right Column: Quantum Console -->
+    <div class="card">
+      <div class="card-header-meta">
+        <span>[ PHYSICAL ENTROPY CONSUMER ]</span>
+        <span>B 02</span>
+      </div>
+      
+      <h3 class="card-title">Quantum Processing Unit</h3>
+      
+      <div class="quantum-core-display">
+        <div class="detail-label" style="margin-bottom: 5px;">Output Value</div>
+        <div id="out-number" class="display-quantum-value">-</div>
+        <div class="detail-label" style="margin-top: 10px;">uint8 (0-255)</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="card-actions-grid">
+        <button id="btn-fetch" class="btn-secondary-dark">
+          1. Pull Entropy
+        </button>
+        <button id="btn-submit" class="btn-secondary-dark" disabled>
+          2. Verify on Monad
+        </button>
+        <button id="btn-instant" class="btn-primary-lime btn-full" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Instant Execution
+        </button>
+      </div>
+
+      <!-- Details Block -->
+      <div class="details-grid">
+        <div class="detail-row">
+          <span class="detail-label">Oracle Node Public Address</span>
+          <span id="out-oracle-address" class="detail-value">-</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Oracle ECDSA Signature</span>
+          <span id="out-signature" class="detail-value">-</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label">Transaction Hash</span>
+          <span id="out-tx-hash" class="detail-value">-</span>
+        </div>
+      </div>
+      
+    </div>
+
+  </div> <!-- view-console -->
+
+  <!-- Developer Documentation View -->
+  <div id="view-docs" class="tab-content" style="display: none; width: 100%; max-width: var(--page-max-width); padding: 0 var(--spacing-24) 100px var(--spacing-24); margin: 0 auto;">
+    <div style="display: grid; grid-template-columns: 280px 1fr; gap: var(--spacing-44); align-items: start;">
+      
+      <!-- Sidebar Index links -->
+      <div class="docs-sidebar">
+        <div class="detail-label">[ DOCUMENTATION INDEX ]</div>
+        <a href="#doc-architecture" class="doc-side-link active">1. Mimari Genel Bakış</a>
+        <a href="#doc-install" class="doc-side-link">2. Kurulum &amp; Kurulum</a>
+        <a href="#doc-quickstart" class="doc-side-link">3. Hızlı Başlangıç</a>
+        <a href="#doc-api" class="doc-side-link">4. Gelişmiş SDK Metotları</a>
+        <a href="#doc-contract" class="doc-side-link">5. Akıllı Kontrat Entegrasyonu</a>
+        <a href="#doc-errors" class="doc-side-link">6. SSS &amp; Hata Yönetimi</a>
+      </div>
+
+      <!-- Main docs area -->
+      <div class="docs-content" style="display: flex; flex-direction: column; gap: var(--spacing-44);">
+        <h2 class="card-title" style="font-size: var(--text-heading); border-bottom: 1px solid var(--color-graphite); padding-bottom: 20px;">
+          Kuantum Oracle <span class="italic-accent">SDK Dokümantasyonu</span>
+        </h2>
+
+        <!-- Section 1: Architecture -->
+        <section id="doc-architecture" class="doc-section">
+          <div class="eyebrow-label">[ OVERVIEW · ARCHITECTURE ]</div>
+          <h3 class="card-title">1. Mimari Genel Bakış</h3>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-20); color: var(--color-bone);">
+            Monad Quantum Oracle, tamamen pull-based (talep üzerine) çalışan, kriptografik doğrulamalı bir kuantum rastgelelik hizmetidir. Klasik on-chain rastgelelik yöntemleri blok parametrelerini manipüle etmeye açıkken veya VRF modelleri yüksek gas ücretleri ve bloklar arası gecikmelere sebep olurken, bu sistem fiziksel kuantum entropisini saniyeler altında akıllı kontratınıza taşır.
+          </p>
+
+          <!-- ASCII Flow Diagram inside Code Block -->
+          <div class="code-container">
+            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
+            <pre class="code-block-panel"><code class="language-text">
+ [ Fiziksel Kuantum Kaynağı ]
+       (ANU / qrandom.io)
+               │
+               ▼  API / Vakum Dalgalanmaları
+ ┌───────────────────────────┐
+ │    Oracle Relayer Node    │ ───► secp256k1 ile İmzalama
+ └───────────────────────────┘
+               │
+               ▼  HTTP: JSON { randomNumber, signature, oracleAddress }
+ ┌───────────────────────────┐
+ │   Developer JS/TS SDK     │
+ └───────────────────────────┘
+               │
+               ▼  Monad Tx: consumeRandom(value, signature)
+ ┌───────────────────────────┐
+ │    QuantumOracle.sol      │ ───► ecrecover doğrulaması yapar
+ └───────────────────────────┘      (Geçerliyse veriyi kaydeder)
+            </code></pre>
+          </div>
+          <p class="hero-subtext" style="max-width: 100%; margin-top: var(--spacing-16); color: var(--color-ash);">
+            <strong>Çalışma Prensibi:</strong> Fiziksel kuantum donanımından toplanan entropi (uint8), Relayer düğümü tarafından özel anahtar (Private Key) ile imzalanır. SDK, bu imzalı paketi sunucudan çeker ve doğrudan Monad üzerindeki doğrulayıcı akıllı kontrata işlem olarak gönderir. Kontrat üzerindeki ECDSA kütüphanesi imzacıyı doğrular; yetkili sunucu imzası dışındaki tüm manipüle edilmiş işlemler ağ seviyesinde revert edilir.
+          </p>
+        </section>
+        
+        <!-- Section 2: Installation -->
+        <section id="doc-install" class="doc-section">
+          <div class="eyebrow-label">[ STEP 01 / 04 ]</div>
+          <h3 class="card-title">2. Kurulum</h3>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); color: var(--color-bone);">
+            Kuantum Oracle entegrasyonu için resmi SDK paketini ve Web3 işlemleri için <strong>Ethers.js v6</strong> kütüphanesini projenizin bağımlılıklarına ekleyin:
+          </p>
+          
+          <div class="code-container">
+            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
+            <pre class="code-block-panel"><code class="language-bash">npm install kuantum-qrng-sdk ethers axios</code></pre>
+          </div>
+        </section>
+
+        <!-- Section 3: Quick Start -->
+        <section id="doc-quickstart" class="doc-section">
+          <div class="eyebrow-label">[ STEP 02 / 04 ]</div>
+          <h3 class="card-title">3. Hızlı Başlangıç</h3>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); color: var(--color-bone);">
+            SDK sınıfını (`QuantumOracleSDK`) başlatarak cüzdanınız (Signer veya Wallet) ve deploy edilmiş olan Monad akıllı kontrat adresinizle sistemi saniyeler içinde çalıştırabilirsiniz:
+          </p>
+          
+          <div class="code-container">
+            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
+            <pre class="code-block-panel"><code class="language-javascript">import { QuantumOracleSDK } from "kuantum-qrng-sdk";
+import { ethers } from "ethers";
+
+// 1. Monad RPC Sağlayıcısı ve İşlemi Gönderecek Cüzdanın Kurulması
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz");
+const wallet = new ethers.Wallet("0x_OZEL_ANAHTARINIZ", provider);
+
+// 2. Kuantum Oracle SDK'sının Akıllı Kontrat Adresiyle Başlatılması
+const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const oracle = new QuantumOracleSDK(contractAddress, wallet);
+
+console.log("SDK Başarıyla Yapılandırıldı.");</code></pre>
+          </div>
+        </section>
+
+        <!-- Section 4: Advanced API Methods -->
+        <section id="doc-api" class="doc-section">
+          <div class="eyebrow-label">[ ADVANCED USAGE · METODLAR ]</div>
+          <h3 class="card-title">4. Gelişmiş SDK Metotları</h3>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); color: var(--color-bone);">
+            SDK, esnek işlem yapısı sunmak için adımları parçalı olarak yönetmenize imkan tanır. Veriyi çekip (fetch), ağa göndermeyi (submit) ayrı adımlarda gerçekleştirebilirsiniz:
+          </p>
+          
+          <div class="code-container">
+            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
+            <pre class="code-block-panel"><code class="language-javascript">// 1. fetchRandomData() -> Relayer'dan kuantum entropisini çeker fakat ağa göndermez
+const quantumPayload = await oracle.fetchRandomData();
+console.log("Kuantum Değeri:", quantumPayload.randomNumber); // uint8
+console.log("Kriptografik İmza:", quantumPayload.signature);
+
+// 2. submitRandomData() -> Çekilen kuantum verisini akıllı kontratta doğrulamak için ağa gönderir
+const tx = await oracle.submitRandomData(
+    quantumPayload.randomNumber,
+    quantumPayload.signature
+);
+const receipt = await tx.wait();
+console.log("Doğrulama işlemi blockchain onayını aldı. Blok:", receipt.blockNumber);
+
+// 3. fetchAndSubmitRandom() -> Çekme ve gönderme işlemlerini tek adımda otomatik yapar
+const txResult = await oracle.fetchAndSubmitRandom();
+console.log(`Otomatik İşlem Başarılı! Kuantum Sayısı: ${txResult.randomNumber}`);</code></pre>
+          </div>
+        </section>
+
+        <!-- Section 5: Smart Contract Integration -->
+        <section id="doc-contract" class="doc-section">
+          <div class="eyebrow-label">[ CONTRACT INTEGRATION · PIPELINE ]</div>
+          <h3 class="card-title">5. Akıllı Kontrat Entegrasyonu</h3>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-20); color: var(--color-bone);">
+            Geliştiriciler kuantum oracle sistemini kendi dApp'lerine entegre ederken iki aşamalı (iki adımlı) basit bir iş akışı uygularlar. Bu yöntem, oracle doğrulamasını ve oyun mantığını birbirinden ayırarak gas tüketimini optimize eder ve sistemin güvenliğini artırır.
+          </p>
+
+          <h4 style="color: var(--color-chalk); font-size: 14px; margin-bottom: 8px; font-family: var(--font-inter-tight); font-weight: 600;">1. Adım A: On-Chain Entegrasyon (Solidity Kontratı)</h4>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-12); font-size: 13px; color: var(--color-ash);">
+            Kendi akıllı kontratınızda (örneğin bir RPG sandık açma sistemi), deploy edilmiş olan ana <code>QuantumOracle</code> kontratından en son doğrulanan rastgele sayıyı çekmek için <code>lastRandomNumber()</code> metodunu çağırmanız yeterlidir:
+          </p>
+          
+          <div class="code-container">
+            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
+            <pre class="code-block-panel"><code class="language-solidity">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+// Ana QuantumOracle kontratının arayüzü
+interface IQuantumOracle {
+    function lastRandomNumber() external view returns (uint8);
+}
+
+contract GameLootBox {
+    // Monad testnet üzerindeki QuantumOracle kontrat adresi
+    address public oracleAddress = 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512;
+
+    // Oyuncuların kazandığı kılıçların ID listesi
+    mapping(address => uint8) public playerSwords;
+
+    event LootBoxOpened(address indexed player, uint8 swordId);
+
+    // İstemci (Frontend) önce oracle.fetchAndSubmitRandom() çağrısını onaylatır.
+    // Ardından bu fonksiyonu tetikleyerek ödülünü kuantum rastgeleliğine göre alır.
+    function openLootBox() external {
+        // Oracle kontratından son doğrulanan kuantum sayısını çekiyoruz
+        uint8 quantumNumber = IQuantumOracle(oracleAddress).lastRandomNumber();
+        
+        // 0-255 aralığındaki sayıyı mod alarak 1-10 arası kılıç ID'sine eşitle
+        uint8 swordId = (quantumNumber % 10) + 1;
+        playerSwords[msg.sender] = swordId;
+
+        emit LootBoxOpened(msg.sender, swordId);
+    }
+}</code></pre>
+          </div>
+
+          <h4 style="color: var(--color-chalk); font-size: 14px; margin-top: var(--spacing-24); margin-bottom: 8px; font-family: var(--font-inter-tight); font-weight: 600;">2. Adım B: Off-Chain Entegrasyon (Frontend JS Kodu)</h4>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-12); font-size: 13px; color: var(--color-ash);">
+            Oyun arayüzünüzde (frontend), oyuncu "Sandık Aç" butonuna tıkladığı an önce SDK'yı çalıştırarak yeni kuantum sayısını on-chain onaylatın, hemen ardından kendi oyun kontratınızdaki <code>openLootBox()</code> metodunu tetikleyin:
+          </p>
+
+          <div class="code-container">
+            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
+            <pre class="code-block-panel"><code class="language-javascript">import { QuantumOracleSDK } from "kuantum-qrng-sdk";
+import { ethers } from "ethers";
+
+// Ethers ve SDK Yapılandırması
+const provider = new ethers.BrowserProvider(window.ethereum);
+const signer = await provider.getSigner();
+
+const oracle = new QuantumOracleSDK("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", signer);
+const gameAddress = "0x_OYUN_KONTRAT_ADRESINIZ";
+const gameAbi = [ "function openLootBox() external" ];
+
+async function handlePlayGame() {
+    try {
+        console.log("1. Adım: Yeni Kuantum Rastgele Sayısı On-Chain Doğrulanıyor...");
+        // SDK, relayer'dan imzalı veriyi çeker ve Oracle kontratına gönderir
+        const oracleReceipt = await oracle.fetchAndSubmitRandom();
+        console.log("Kuantum sayısı doğrulandı! Tx:", oracleReceipt.hash);
+
+        console.log("2. Adım: Oyun Akıllı Kontratındaki Lootbox Tetikleniyor...");
+        const gameContract = new ethers.Contract(gameAddress, gameAbi, signer);
+        const gameTx = await gameContract.openLootBox();
+        const receipt = await gameTx.wait();
+        
+        console.log("Tebrikler! Lootbox kuantum sayılarına göre başarıyla açıldı.");
+    } catch (error) {
+        console.error("Entegrasyon Hatası:", error);
+    }
+}</code></pre>
+          </div>
+        </section>
+
+        <!-- Section 6: FAQ & Error Handling -->
+        <section id="doc-errors" class="doc-section">
+          <div class="eyebrow-label">[ DEBUGGING · FAQ ]</div>
+          <h3 class="card-title">6. SSS &amp; Hata Yönetimi</h3>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); color: var(--color-bone);">
+            Geliştiricilerin karşılaşabileceği yaygın durumlar ve bunların kriptografik çözümleri aşağıda açıklanmıştır:
+          </p>
+
+          <h4 style="color: var(--color-chalk); font-size: 14px; margin-bottom: 8px; font-family: var(--font-inter-tight); font-weight: 600;">1. "Gecersiz Oracle Imzasi" Hatası</h4>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); font-size: 13px; color: var(--color-ash);">
+            Bu hata, akıllı kontrata gönderilen imzayı atan Relayer node'un public adresi ile akıllı kontrattaki yetkili <code>oracleNode</code> adresinin uyuşmadığını gösterir. Relayer her başladığında yeni bir cüzdan anahtarı üretebilir. Bu durumda kontrat sahibi (`owner`), `updateOracleAddress(newOracleAddress)` fonksiyonunu çağırarak kontrattaki adresi güncellemelidir.
+          </p>
+
+          <h4 style="color: var(--color-chalk); font-size: 14px; margin-bottom: 8px; font-family: var(--font-inter-tight); font-weight: 600;">2. Rate Limit (HTTP 429) &amp; Fallback Desteği</h4>
+          <p class="hero-subtext" style="max-width: 100%; margin-bottom: var(--spacing-16); font-size: 13px; color: var(--color-ash);">
+            Fiziksel kuantum kaynak sağlayıcımız (ANU API) dakika başına 1 istek limiti uygulamaktadır. Relayer sunucumuz bu limite takıldığında otomatik olarak <strong>qrandom.io</strong> kuantum kaynağına geçiş yapar (Failover). SDK geliştiricisi olarak bu durumu yakalamak için aşağıdaki hata yönetimi desenini uygulayabilirsiniz:
+          </p>
+
+          <div class="code-container">
+            <button class="btn-copy-code" onclick="copyCodeText(this)">Kopyala</button>
+            <pre class="code-block-panel"><code class="language-javascript">try {
+    const tx = await oracle.fetchAndSubmitRandom();
+} catch (error) {
+    if (error.message.includes("429")) {
+        console.warn("Kuantum API istek limiti aşıldı, otomatik fallback devrede.");
+    } else {
+        console.error("Beklenmeyen Hata:", error.message);
+    }
+}</code></pre>
+          </div>
+        </section>
+        
+      </div>
+    </div>
+  </div> <!-- view-docs -->
+
+  <script>
+    // State Variables
+    let userProvider = null;
+    let userSigner = null;
+    let userAddress = null;
+    let fetchedData = null; // { randomNumber, signature, oracleAddress }
+
+    // Minimal Contract ABI
+    const CONTRACT_ABI = [
+      "function consumeRandom(uint8 _randomNumber, bytes memory _signature) public",
+      "function updateOracleAddress(address _newOracle) public",
+      "function oracleNode() public view returns (address)",
+      "function lastRandomNumber() public view returns (uint8)"
+    ];
+
+    // UI Elements
+    const btnConnect = document.getElementById('btn-connect');
+    const btnUpdateOracle = document.getElementById('btn-update-oracle');
+    const btnFetch = document.getElementById('btn-fetch');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnInstant = document.getElementById('btn-instant');
+    
+    const inputContract = document.getElementById('input-contract');
+    const inputRelayer = document.getElementById('input-relayer');
+    
+    const outNumber = document.getElementById('out-number');
+    const outOracleAddress = document.getElementById('out-oracle-address');
+    const outSignature = document.getElementById('out-signature');
+    const outTxHash = document.getElementById('out-tx-hash');
+    
+    const walletStatus = document.getElementById('wallet-status-badge');
+    const statusTagPill = document.getElementById('status-tag-pill');
+    const consoleDiv = document.getElementById('console');
+
+    // Load saved contract address
+    if (localStorage.getItem('quantumContractAddress')) {
+      inputContract.value = localStorage.getItem('quantumContractAddress');
+    }
+
+    // Automatically detect Vercel production URL or fallback to localhost relayer
+    const currentOrigin = window.location.origin;
+    if (currentOrigin.includes('vercel.app') || currentOrigin.includes('kuantum-sigma.vercel.app')) {
+      inputRelayer.value = currentOrigin;
+    } else {
+      inputRelayer.value = 'http://localhost:3000';
+    }
+
+    // Save contract address on change
+    inputContract.addEventListener('input', () => {
+      localStorage.setItem('quantumContractAddress', inputContract.value.trim());
+      updateSubmitButtonStates();
+    });
+
+    // Logger
+    function log(message, type = 'sys') {
+      const entry = document.createElement('div');
+      entry.className = `log-line`;
+      
+      const timeStr = new Date().toLocaleTimeString();
+      let spanClass = 'log-sys';
+      if (type === 'success') spanClass = 'log-success';
+      if (type === 'error') spanClass = 'log-error';
+      if (type === 'accent') spanClass = 'log-accent';
+
+      entry.innerHTML = `<span class="log-time">[${timeStr}]</span> <span class="${spanClass}">${message}</span>`;
+      consoleDiv.appendChild(entry);
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+
+    // Connect to Metamask
+    async function connectWallet() {
+      if (!window.ethereum) {
+        log('Error: MetaMask not detected.', 'error');
+        alert('MetaMask not detected!');
+        return;
+      }
+      try {
+        log('Connecting MetaMask cüzdan...', 'sys');
+        userProvider = new ethers.BrowserProvider(window.ethereum);
+        
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        userAddress = accounts[0];
+        userSigner = await userProvider.getSigner();
+
+        walletStatus.innerText = '● CONNECTED';
+        walletStatus.className = 'badge badge-connected';
+        
+        const btnText = btnConnect.querySelector('span');
+        if (btnText) btnText.innerText = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+        
+        log(`Wallet securely linked: ${userAddress}`, 'success');
+        statusTagPill.innerText = '● ONLINE';
+        statusTagPill.style.color = 'var(--color-signal-lime)';
+        statusTagPill.style.borderColor = 'var(--color-signal-lime)';
+
+        updateSubmitButtonStates();
+
+        window.ethereum.on('accountsChanged', (accounts) => {
+          if (accounts.length === 0) {
+            userAddress = null;
+            walletStatus.innerText = '● DISCONNECTED';
+            walletStatus.className = 'badge badge-disconnected';
+            if (btnText) btnText.innerText = 'Connect Wallet';
+            log('Wallet links severed.', 'error');
+            statusTagPill.innerText = '● STANDBY';
+            statusTagPill.style.color = '';
+            statusTagPill.style.borderColor = '';
+          } else {
+            userAddress = accounts[0];
+            if (btnText) btnText.innerText = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+            log(`Wallet identity swapped: ${userAddress}`, 'sys');
+          }
+          updateSubmitButtonStates();
+        });
+
+      } catch (error) {
+        log(`Wallet link error: ${error.message}`, 'error');
+      }
+    }
+
+    function updateSubmitButtonStates() {
+      const isWalletConnected = !!userAddress;
+      const isContractEntered = inputContract.value.trim().startsWith('0x') && inputContract.value.trim().length === 42;
+      const hasFetchedData = !!fetchedData;
+
+      btnSubmit.disabled = !(isWalletConnected && isContractEntered && hasFetchedData);
+      btnInstant.disabled = !(isWalletConnected && isContractEntered);
+      btnUpdateOracle.disabled = !(isWalletConnected && isContractEntered && hasFetchedData);
+    }
+
+    // 1. Fetch Quantum Random Number from Relayer
+    async function fetchQuantumRandom() {
+      const relayerUrl = inputRelayer.value.trim() || 'http://localhost:3000';
+      btnFetch.disabled = true;
+      btnFetch.innerText = 'PULLING...';
+      log(`Contacting off-chain entropy relayer: ${relayerUrl}/quantum-random...`, 'sys');
+
+      try {
+        const response = await fetch(`${relayerUrl}/quantum-random`);
+        if (!response.ok) {
+          throw new Error(`HTTP Error status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        fetchedData = data;
+
+        // Update UI
+        outNumber.innerText = data.randomNumber;
+        outOracleAddress.innerText = data.oracleAddress;
+        outSignature.innerText = data.signature;
+
+        log(`Entropy pulled: ${data.randomNumber} (Source: ${data.source || 'Unknown'})`, 'success');
+        log(`Registered signer key: ${data.oracleAddress}`, 'accent');
+        log(`Signature hash validation token: ${data.signature.slice(0, 18)}...`, 'sys');
+
+        updateSubmitButtonStates();
+      } catch (error) {
+        log(`Entropy pull failed: ${error.message}`, 'error');
+        alert(`Relayer error: ${error.message}`);
+        fetchedData = null;
+        outNumber.innerText = '-';
+        outOracleAddress.innerText = '-';
+        outSignature.innerText = '-';
+        updateSubmitButtonStates();
+      } finally {
+        btnFetch.disabled = false;
+        btnFetch.innerText = '1. PULL ENTROPY';
+      }
+    }
+
+    // 2. Submit transaction to Monad contract
+    async function submitToBlockchain() {
+      if (!fetchedData) {
+        log('Error: Entropy missing. Pull from off-chain source first.', 'error');
+        return;
+      }
+
+      const contractAddress = inputContract.value.trim();
+      log(`Initiating on-chain verification at: ${contractAddress}`, 'sys');
+
+      try {
+        btnSubmit.disabled = true;
+        btnInstant.disabled = true;
+        btnSubmit.innerText = 'AWAITING SIGNATURE...';
+
+        const contract = new ethers.Contract(contractAddress, CONTRACT_ABI, userSigner);
+        log(`Awaiting user signature authorization for consumeRandom(${fetchedData.randomNumber}, ...)`, 'sys');
+        
+        const tx = await contract.consumeRandom(fetchedData.randomNumber, fetchedData.signature);
+        log(`Tx broadcasted. Hash: ${tx.hash}`, 'accent');
+        outTxHash.innerHTML = `<span style="color: var(--color-signal-lime);">${tx.hash}</span>`;
+
+        log('Awaiting Monad block confirmation...', 'sys');
+        const receipt = await tx.wait();
+
+        if (receipt.status === 1) {
+          log(`Transaction verified. Block: ${receipt.blockNumber}`, 'success');
+          
+          // Verify on-chain update
+          const onChainVal = await contract.lastRandomNumber();
+          log(`On-Chain State Validated. Value: ${onChainVal}`, 'success');
+        } else {
+          throw new Error('Transaction execution reverted on-chain');
+        }
+
+      } catch (error) {
+        log(`On-chain transaction failure: ${error.message || error}`, 'error');
+        alert(`Error: ${error.message || error}`);
+      } finally {
+        updateSubmitButtonStates();
+        btnSubmit.innerText = '2. VERIFY ON MONAD';
+      }
+    }
+
+    // Instant Pull-Based Flow (Fetch + Submit)
+    async function instantPullAndSubmit() {
+      await fetchQuantumRandom();
+      if (fetchedData) {
+        await submitToBlockchain();
+      }
+    }
+
+    // Owner only function: Update Oracle Address in smart contract
+    async function updateOracleInContract() {
+      if (!fetchedData) return;
+      const contractAddress = inputContract.value.trim();
+      try {
+        btnUpdateOracle.disabled = true;
+        btnUpdateOracle.innerText = 'UPDATING...';
+        log(`Updating target oracle node on-chain. Address: ${fetchedData.oracleAddress}`, 'sys');
+        
+        const contract = new ethers.Contract(contractAddress, CONTRACT_ABI, userSigner);
+        const tx = await contract.updateOracleAddress(fetchedData.oracleAddress);
+        log(`Tx broadcasted. Hash: ${tx.hash}`, 'accent');
+        
+        await tx.wait();
+        log(`Oracle address registered on-chain successfully!`, 'success');
+      } catch (error) {
+        log(`Oracle update failure: ${error.message}`, 'error');
+        alert(`Error: ${error.message}`);
+      } finally {
+        updateSubmitButtonStates();
+        btnUpdateOracle.innerText = 'Oracle Adresini Kontrata Tanıt';
+      }
+    }
+
+    // Event Listeners
+    btnConnect.addEventListener('click', connectWallet);
+    btnFetch.addEventListener('click', fetchQuantumRandom);
+    btnSubmit.addEventListener('click', submitToBlockchain);
+    btnInstant.addEventListener('click', instantPullAndSubmit);
+    btnUpdateOracle.addEventListener('click', updateOracleInContract);
+
+    // 3D Quantum Probability Bloch Sphere Animation via Three.js
+    function init3DQuantumCore() {
+      const container = document.getElementById('canvas3d-container');
+      if (!container) return;
+
+      const scene = new THREE.Scene();
+
+      // Camera Settings
+      const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 1, 1000);
+      camera.position.z = 120;
+
+      // WebGL Renderer with Alpha transparent channel
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      // Generating point cloud
+      const particleCount = 1200;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      const colors = new Float32Array(particleCount * 3);
+
+      const colorLime = new THREE.Color('#c5ff4a');
+      const colorWhite = new THREE.Color('#ffffff');
+
+      for (let i = 0; i < particleCount; i++) {
+        // Generating spherical quantum Bloch cloud representation
+        const phi = Math.acos(Math.random() * 2 - 1);
+        const theta = Math.random() * Math.PI * 2;
+        
+        // Varying the radius to create complex quantum probability orbits
+        const r = 40 + Math.sin(theta * 5) * Math.cos(phi * 5) * 5 + (Math.random() - 0.5) * 2;
+
+        const x = r * Math.sin(phi) * Math.cos(theta);
+        const y = r * Math.sin(phi) * Math.sin(theta);
+        const z = r * Math.cos(phi);
+
+        positions[i * 3] = x;
+        positions[i * 3 + 1] = y;
+        positions[i * 3 + 2] = z;
+
+        // Alternating between Signal Lime and White
+        const mixColor = Math.random() > 0.45 ? colorLime : colorWhite;
+        colors[i * 3] = mixColor.r;
+        colors[i * 3 + 1] = mixColor.g;
+        colors[i * 3 + 2] = mixColor.b;
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      // Point cloud material using the pointillist sizes (1.5 - 2.5px)
+      const material = new THREE.PointsMaterial({
+        size: 1.8,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.7,
+        sizeAttenuation: true
+      });
+
+      const particleSystem = new THREE.Points(geometry, material);
+      scene.add(particleSystem);
+
+      // Render Loop
+      let time = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        time += 0.003;
+
+        // Orbital rotation
+        particleSystem.rotation.x = time * 0.12;
+        particleSystem.rotation.y = time * 0.22;
+        particleSystem.rotation.z = time * 0.04;
+
+        // Modulate points positions slightly to mimic quantum field ripples
+        const posArr = geometry.attributes.position.array;
+        for (let i = 0; i < particleCount; i++) {
+          const idx = i * 3;
+          const x = posArr[idx];
+          const y = posArr[idx + 1];
+          const dist = Math.sqrt(x*x + y*y);
+          
+          // Ripple along Z coordinate based on distance and elapsed time
+          posArr[idx + 2] += Math.sin(dist * 0.12 - time * 6) * 0.04;
+        }
+        geometry.attributes.position.needsUpdate = true;
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      // Window Resize Listener
+      window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
+    }
+
+    // Initialize 3D Quantum Engine
+    init3DQuantumCore();
+
+    // Tab Switching Logic
+    const navProtocol = document.getElementById('nav-protocol');
+    const navDocs = document.getElementById('nav-docs');
+    const viewConsole = document.getElementById('view-console');
+    const viewDocs = document.getElementById('view-docs');
+
+    navProtocol.addEventListener('click', () => {
+      navProtocol.classList.add('active');
+      navDocs.classList.remove('active');
+      viewConsole.style.display = 'grid';
+      viewDocs.style.display = 'none';
+      log('Protocol Console view selected.', 'sys');
+    });
+
+    navDocs.addEventListener('click', () => {
+      navDocs.classList.add('active');
+      navProtocol.classList.remove('active');
+      viewConsole.style.display = 'none';
+      viewDocs.style.display = 'block';
+      log('Developer Documentation view selected.', 'sys');
+    });
+
+    // Copy Code Blocks Logic
+    window.copyCodeText = function(btn) {
+      const codeContainer = btn.parentElement;
+      const codeElement = codeContainer.querySelector('code');
+      if (!codeElement) return;
+
+      const codeText = codeElement.innerText;
+      navigator.clipboard.writeText(codeText).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = 'KOPYALANDI!';
+        btn.style.color = 'var(--color-signal-lime)';
+        btn.style.borderColor = 'var(--color-signal-lime)';
+        btn.style.backgroundColor = 'rgba(197, 255, 74, 0.1)';
+        
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.color = '';
+          btn.style.borderColor = '';
+          btn.style.backgroundColor = '';
+        }, 2000);
+      }).catch(err => {
+        console.error('Copy failed:', err);
+      });
+    };
+
+    // Docs Sidebar Active States on Scroll Spy
+    const docSections = document.querySelectorAll('.doc-section');
+    const docSidebarLinks = document.querySelectorAll('.doc-side-link');
+
+    window.addEventListener('scroll', () => {
+      let currentSectionId = '';
+      const scrollPosition = window.scrollY + 200;
+
+      docSections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+          currentSectionId = section.getAttribute('id');
+        }
+      });
+
+      if (currentSectionId) {
+        docSidebarLinks.forEach(link => {
+          if (link.getAttribute('href') === `#${currentSectionId}`) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+    });
+
+  </script>
+</body>
+</html>
