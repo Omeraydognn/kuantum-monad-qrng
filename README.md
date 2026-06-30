@@ -89,5 +89,4 @@ cd relayer && npm start
 
 ---
 
-## License
-MIT
+with dev relax44
